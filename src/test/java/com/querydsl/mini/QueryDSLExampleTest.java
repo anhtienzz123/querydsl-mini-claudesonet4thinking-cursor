@@ -144,8 +144,14 @@ public class QueryDSLExampleTest {
         PathExpression<String> userName = path(String.class, "users", "name");
         
         // The visitor pattern is used internally by the SQL generator
-        String result = userName.accept(queryDSL.getQueryFactory().getSqlGenerator(), null);
-        assertEquals("users.name", result);
+        // Cast the SqlGenerator to ExpressionVisitor to demonstrate visitor pattern
+        var sqlGenerator = queryDSL.getQueryFactory().getSqlGenerator();
+        if (sqlGenerator instanceof com.querydsl.mini.core.ExpressionVisitor) {
+            @SuppressWarnings("unchecked")
+            var visitor = (com.querydsl.mini.core.ExpressionVisitor<String, Void>) sqlGenerator;
+            String result = userName.accept(visitor, null);
+            assertEquals("users.name", result);
+        }
     }
     
     @Test

@@ -1,5 +1,6 @@
 package com.querydsl.mini.expressions;
 
+import com.querydsl.mini.core.Expression;
 import com.querydsl.mini.core.ExpressionVisitor;
 import com.querydsl.mini.core.Operator;
 
@@ -73,24 +74,48 @@ public class PathExpression<T> extends AbstractExpression<T> {
         return new BinaryOperationExpression<>(Boolean.class, this, Operator.EQ, new ConstantExpression<>(getType(), value));
     }
     
+    public BinaryOperationExpression<Boolean> eq(Expression<T> other) {
+        return new BinaryOperationExpression<>(Boolean.class, this, Operator.EQ, other);
+    }
+    
     public BinaryOperationExpression<Boolean> ne(T value) {
         return new BinaryOperationExpression<>(Boolean.class, this, Operator.NE, new ConstantExpression<>(getType(), value));
+    }
+    
+    public BinaryOperationExpression<Boolean> ne(Expression<T> other) {
+        return new BinaryOperationExpression<>(Boolean.class, this, Operator.NE, other);
     }
     
     public BinaryOperationExpression<Boolean> lt(T value) {
         return new BinaryOperationExpression<>(Boolean.class, this, Operator.LT, new ConstantExpression<>(getType(), value));
     }
     
+    public BinaryOperationExpression<Boolean> lt(Expression<T> other) {
+        return new BinaryOperationExpression<>(Boolean.class, this, Operator.LT, other);
+    }
+    
     public BinaryOperationExpression<Boolean> le(T value) {
         return new BinaryOperationExpression<>(Boolean.class, this, Operator.LE, new ConstantExpression<>(getType(), value));
+    }
+    
+    public BinaryOperationExpression<Boolean> le(Expression<T> other) {
+        return new BinaryOperationExpression<>(Boolean.class, this, Operator.LE, other);
     }
     
     public BinaryOperationExpression<Boolean> gt(T value) {
         return new BinaryOperationExpression<>(Boolean.class, this, Operator.GT, new ConstantExpression<>(getType(), value));
     }
     
+    public BinaryOperationExpression<Boolean> gt(Expression<T> other) {
+        return new BinaryOperationExpression<>(Boolean.class, this, Operator.GT, other);
+    }
+    
     public BinaryOperationExpression<Boolean> ge(T value) {
         return new BinaryOperationExpression<>(Boolean.class, this, Operator.GE, new ConstantExpression<>(getType(), value));
+    }
+    
+    public BinaryOperationExpression<Boolean> ge(Expression<T> other) {
+        return new BinaryOperationExpression<>(Boolean.class, this, Operator.GE, other);
     }
     
     public BinaryOperationExpression<Boolean> like(String pattern) {
