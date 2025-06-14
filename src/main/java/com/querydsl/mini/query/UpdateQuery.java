@@ -51,8 +51,9 @@ public class UpdateQuery extends AbstractQuery<Void, UpdateQuery> {
     }
     
     @Override
+    @SuppressWarnings("unchecked")
     protected <R> AbstractQuery<R, ?> createNewQuery(Class<R> resultType) {
-        return new UpdateQuery(executor, sqlGenerator);
+        return (AbstractQuery<R, ?>) new UpdateQuery(executor, sqlGenerator);
     }
     
     // Getters for SQL generation

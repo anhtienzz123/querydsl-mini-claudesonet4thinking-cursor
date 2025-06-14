@@ -28,6 +28,23 @@ public interface QueryExecutor {
     long executeCount(AbstractQuery<?, ?> query);
     
     /**
+     * Executes an INSERT, UPDATE, or DELETE query and returns the number of affected rows.
+     * 
+     * @param query The query to execute
+     * @return Number of affected rows
+     */
+    long executeUpdate(AbstractQuery<?, ?> query);
+    
+    /**
+     * Executes an INSERT query and returns the generated keys (if any).
+     * 
+     * @param query The insert query to execute
+     * @param <T> The key type
+     * @return List of generated keys
+     */
+    <T> List<T> executeInsert(AbstractQuery<?, ?> query, Class<T> keyType);
+    
+    /**
      * Closes the executor and releases any resources.
      */
     void close();
