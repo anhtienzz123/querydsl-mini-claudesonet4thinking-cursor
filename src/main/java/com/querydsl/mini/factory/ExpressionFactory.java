@@ -54,6 +54,24 @@ public class ExpressionFactory {
     }
     
     /**
+     * Creates a constant expression for any value, determining type automatically.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> ConstantExpression<T> constant(T value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Use nullExpression() for null values");
+        }
+        return new ConstantExpression<>((Class<T>) value.getClass(), value);
+    }
+    
+    /**
+     * Creates a NULL constant expression.
+     */
+    public static <T> ConstantExpression<T> nullExpression() {
+        return new ConstantExpression<>(null, null);
+    }
+    
+    /**
      * Creates a function expression.
      */
     public static <T> FunctionExpression<T> function(Class<T> type, String name, Expression<?>... args) {

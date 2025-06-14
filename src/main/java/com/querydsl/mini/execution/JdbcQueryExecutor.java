@@ -57,6 +57,38 @@ public class JdbcQueryExecutor implements QueryExecutor {
     }
     
     @Override
+    public long executeUpdate(AbstractQuery<?, ?> query) {
+        String sql = query.toSQL();
+        
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            
+            return statement.executeUpdate();
+            
+        } catch (SQLException e) {
+            throw new QueryExecutionException("Failed to execute update query: " + sql, e);
+        }
+    }
+    
+    @Override
+    public <T> List<T> executeInsert(AbstractQuery<?, ?> query, Class<T> keyType) {
+        String sql = query.toSQL();
+        
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            
+            statement.executeUpdate();
+            
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                return resultProcessor.process(generatedKeys, keyType);
+            }
+            
+        } catch (SQLException e) {
+            throw new QueryExecutionException("Failed to execute insert query: " + sql, e);
+        }
+    }
+    
+    @Override
     public void close() {
         // DataSource cleanup would go here if needed
     }

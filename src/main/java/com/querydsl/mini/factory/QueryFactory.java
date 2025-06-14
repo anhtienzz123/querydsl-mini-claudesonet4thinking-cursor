@@ -2,6 +2,9 @@ package com.querydsl.mini.factory;
 
 import com.querydsl.mini.execution.QueryExecutor;
 import com.querydsl.mini.query.SelectQuery;
+import com.querydsl.mini.query.InsertQuery;
+import com.querydsl.mini.query.UpdateQuery;
+import com.querydsl.mini.query.DeleteQuery;
 import com.querydsl.mini.sql.SqlGenerator;
 
 /**
@@ -72,5 +75,40 @@ public class QueryFactory {
      */
     public SqlGenerator getSqlGenerator() {
         return sqlGenerator;
+    }
+    
+    /**
+     * Creates a new INSERT query.
+     */
+    public <T> InsertQuery<T> insertInto(String tableName, Class<T> keyType) {
+        return new InsertQuery<>(keyType, executor, sqlGenerator).from(tableName);
+    }
+    
+    /**
+     * Creates a new INSERT query with Long key type (common for auto-generated keys).
+     */
+    public InsertQuery<Long> insertInto(String tableName) {
+        return insertInto(tableName, Long.class);
+    }
+    
+    /**
+     * Creates a new UPDATE query.
+     */
+    public UpdateQuery update(String tableName) {
+        return new UpdateQuery(executor, sqlGenerator).from(tableName);
+    }
+    
+    /**
+     * Creates a new DELETE query.
+     */
+    public DeleteQuery deleteFrom(String tableName) {
+        return new DeleteQuery(executor, sqlGenerator).from(tableName);
+    }
+    
+    /**
+     * Creates a new DELETE query (alias for deleteFrom).
+     */
+    public DeleteQuery delete() {
+        return new DeleteQuery(executor, sqlGenerator);
     }
 }

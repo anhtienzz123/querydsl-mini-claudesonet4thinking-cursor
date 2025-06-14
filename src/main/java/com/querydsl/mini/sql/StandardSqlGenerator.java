@@ -4,6 +4,9 @@ import com.querydsl.mini.core.Expression;
 import com.querydsl.mini.core.ExpressionVisitor;
 import com.querydsl.mini.expressions.*;
 import com.querydsl.mini.query.AbstractQuery;
+import com.querydsl.mini.query.InsertQuery;
+import com.querydsl.mini.query.UpdateQuery;
+import com.querydsl.mini.query.DeleteQuery;
 
 import java.util.stream.Collectors;
 
@@ -15,6 +18,19 @@ public class StandardSqlGenerator implements SqlGenerator, ExpressionVisitor<Str
     
     @Override
     public String generate(AbstractQuery<?, ?> query) {
+        // Determine query type and generate appropriate SQL
+        if (query instanceof InsertQuery<?> insertQuery) {
+            return generateInsert(insertQuery);
+        } else if (query instanceof UpdateQuery updateQuery) {
+            return generateUpdate(updateQuery);
+        } else if (query instanceof DeleteQuery deleteQuery) {
+            return generateDelete(deleteQuery);
+        } else {
+            return generateSelect(query);
+        }
+    }
+    
+    private String generateSelect(AbstractQuery<?, ?> query) {
         StringBuilder sql = new StringBuilder();
         
         // SELECT clause
@@ -79,6 +95,67 @@ public class StandardSqlGenerator implements SqlGenerator, ExpressionVisitor<Str
         // OFFSET clause
         if (query.getOffsetValue() != null) {
             sql.append(" OFFSET ").append(query.getOffsetValue());
+        }
+        
+        return sql.toString();
+    }
+    
+    private String generateInsert(InsertQuery<?> query) {
+        StringBuilder sql = new StringBuilder();
+        
+        sql.append("INSERT INTO ").append(query.getFromTable());
+        
+        // Columns clause
+        if (!query.getColumns().isEmpty()) {
+            sql.append(" (")
+               .append(String.join(", ", query.getColumns()))
+               .append(")");
+        }
+        
+        // VALUES or SELECT clause
+        if (query.hasSelectQuery()) {
+            sql.append(" ").append(query.getSelectQuery().toSQL());
+        } else if (query.hasValues()) {
+            sql.append(" VALUES ");
+            sql.append(query.getValuesBatch().stream()
+                    .map(values -> values.stream()
+                            .map(expr -> expr.accept(this, null))
+                            .collect(Collectors.joining(", ", "(", ")")))
+                    .collect(Collectors.joining(", ")));
+        }
+        
+        return sql.toString();
+    }
+    
+    private String generateUpdate(UpdateQuery query) {
+        StringBuilder sql = new StringBuilder();
+        
+        sql.append("UPDATE ").append(query.getFromTable());
+        
+        // SET clause
+        if (!query.getSetClause().isEmpty()) {
+            sql.append(" SET ");
+            sql.append(query.getSetClause().entrySet().stream()
+                    .map(entry -> entry.getKey() + " = " + entry.getValue().accept(this, null))
+                    .collect(Collectors.joining(", ")));
+        }
+        
+        // WHERE clause
+        if (query.getWhereCondition() != null) {
+            sql.append(" WHERE ").append(query.getWhereCondition().accept(this, null));
+        }
+        
+        return sql.toString();
+    }
+    
+    private String generateDelete(DeleteQuery query) {
+        StringBuilder sql = new StringBuilder();
+        
+        sql.append("DELETE FROM ").append(query.getFromTable());
+        
+        // WHERE clause
+        if (query.getWhereCondition() != null) {
+            sql.append(" WHERE ").append(query.getWhereCondition().accept(this, null));
         }
         
         return sql.toString();
